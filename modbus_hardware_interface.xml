@@ -1,0 +1,11 @@
+ <!-- Plugin for connecting Modbus devices to ros2_control -->
+<library path="modbus_hardware_interface">
+  <class name="modbus_hardware_interface/ModbusHardwareInterface"
+         type="modbus_hardware_interface::ModbusHardwareInterface"
+         base_class_type="hardware_interface::SystemInterface">
+    <description>
+      ros2_control hardware interface for the servo motor controlled via the modbus protocol.
+        </description>
+  </class>
+</library>
+s
