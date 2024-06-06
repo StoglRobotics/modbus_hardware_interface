@@ -233,16 +233,16 @@ hardware_interface::CallbackReturn ModbusHardwareInterface::on_deactivate(
 
 // TODO(destogl): remove this method from here
 hardware_interface::return_type ModbusHardwareInterface::prepare_command_mode_switch(
-  const std::vector<std::string> & start_interfaces,
-  const std::vector<std::string> & stop_interfaces)
+  const std::vector<std::string> & /*start_interfaces*/,
+  const std::vector<std::string> & /*stop_interfaces*/)
 {
   return hardware_interface::return_type::OK;
 }
 
 // TODO(destogl): remove this method from here
 hardware_interface::return_type ModbusHardwareInterface::perform_command_mode_switch(
-  const std::vector<std::string> & start_interfaces,
-  const std::vector<std::string> & stop_interfaces)
+  const std::vector<std::string> & /*start_interfaces*/,
+  const std::vector<std::string> & /*stop_interfaces*/)
 {
   return hardware_interface::return_type::OK;
 }
