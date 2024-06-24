@@ -9,29 +9,6 @@ find_package(PkgConfig REQUIRED)  # Find pkg-config module
 # Use pkg-config to get information about libmodbus
 pkg_check_modules(LIBMODBUS REQUIRED IMPORTED_TARGET libmodbus)
 
-# Export addtionaly libmodbus modules
-# set(_exported_dependencies "LIBMODBUS")
-
-# find_package(ament_cmake_libraries QUIET REQUIRED)
-#
-# if(NOT _exported_dependencies STREQUAL "")
-#   find_package(ament_cmake_core QUIET REQUIRED)
-#   set(Modbus_hardware_interface_DEPENDENCIES ${_exported_dependencies})
-#   set(Modbus_hardware_interface_RECURSIVE_DEPENDENCIES ${_exported_dependencies})
-#   set(_libraries)
-#   foreach(_dep ${_exported_dependencies})
-#     if(NOT ${_dep}_FOUND)
-#       find_package("${_dep}" QUIET)
-#     endif()
-#     if(NOT ${_dep}_FOUND)
-#       pkg_check_modules(${_dep} IMPORTED_TARGET)
-#     endif()
-#     if(NOT ${_dep}_FOUND)
-#       find_package("${_dep}" REQUIRED)
-#     endif()
-#   endforeach()
-# endif()
-
 # define ROS Package dependencies
 set(THIS_PACKAGE_INCLUDE_DEPENDS
   hardware_interface
@@ -59,16 +36,12 @@ target_include_directories(
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include/modbus_hardware_interface>
 )
-target_link_libraries(modbus_hardware_interface PkgConfig::LIBMODBUS)
+target_link_libraries(modbus_hardware_interface ${LIBMODBUS_LIBRARIES})
 ament_target_dependencies(modbus_hardware_interface ${THIS_PACKAGE_INCLUDE_DEPENDS})
-# set_target_properties(modbus_hardware_interface PROPERTIES
-#   INTERFACE_INCLUDE_DIRECTORIES "${_IMPORT_PREFIX}/include"
-#   INTERFACE_LINK_LIBRARIES "PkgConfig::LIBMODBUS"
-# )
 
 # modbus mock server
 add_executable(modbus_mock_server_node src/modbus_mock_server_node.cpp)
-target_link_libraries(modbus_mock_server_node PkgConfig::LIBMODBUS)
+target_link_libraries(modbus_mock_server_node ${LIBMODBUS_LIBRARIES})
 ament_target_dependencies(modbus_mock_server_node ${THIS_PACKAGE_INCLUDE_DEPENDS})
 
 pluginlib_export_plugin_description_file(
