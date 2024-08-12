@@ -45,6 +45,22 @@ public:
   virtual ~ModbusConnectionException() noexcept {}
 };
 
+class ModbusInvalidConfigException : public std::runtime_error
+{
+public:
+  explicit ModbusInvalidConfigException(const std::string & message) : std::runtime_error(message) {}
+
+  virtual ~ModbusInvalidConfigException() noexcept {}
+};
+
+class ModbusUnknownConversionFunctionException : public std::runtime_error
+{
+public:
+  explicit ModbusUnknownConversionFunctionException(const std::string & message) : std::runtime_error(message) {}
+
+  virtual ~ModbusUnknownConversionFunctionException() noexcept {}
+};
+
 }  // namespace modbus_hardware_interface
 
 #endif  // MODBUS_HARDWARE_INTERFACE__MODBUS_EXCEPTIONS_HPP_
