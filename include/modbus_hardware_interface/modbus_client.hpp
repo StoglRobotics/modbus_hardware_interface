@@ -93,6 +93,13 @@ public:
     if (this->read_function() == REGISTER || this->read_function() == INPUT_REGISTER)
     {
       this->register_mode(true);
+    } else if (this->read_function() == BITS || this->read_function() == INPUT_BITS)
+    {
+      this->register_mode(false);
+    } else {
+      throw ModbusInvalidConfigException(
+        "ModbusInterfaceReadConfig: Invalid read_function passed [" + read_function_ +
+          "]. Allowed types are [" + std::string(REGISTER) + "], [" + std::string(INPUT_REGISTER) + "], [" + std::string(BITS) + "] or [" + std::string(INPUT_BITS) + "].");
     }
     else if (this->read_function() == BITS || this->read_function() == INPUT_BITS)
     {
@@ -267,6 +274,13 @@ public:
     if (this->write_function() == REGISTER || this->write_function() == INPUT_REGISTER)
     {
       this->register_mode(true);
+    } else if (this->write_function() == BITS || this->write_function() == INPUT_BITS)
+    {
+      this->register_mode(false);
+    } else {
+      throw ModbusInvalidConfigException(
+        "ModbusInterfaceWriteConfig: Invalid write_function passed [" + write_function_ +
+          "]. Allowed types are [" + std::string(REGISTER) + "], [" + std::string(INPUT_REGISTER) + "], [" + std::string(BITS) + "] or [" + std::string(INPUT_BITS) + "].");
     }
     else if (this->write_function() == BITS || this->write_function() == INPUT_BITS)
     {
