@@ -32,6 +32,11 @@
 namespace modbus_hardware_interface
 {
 
+constexpr char REGISTER[] = "register";
+constexpr char INPUT_REGISTER[] = "input_register";
+constexpr char BITS[] = "bits";
+constexpr char INPUT_BITS[] = "input_bits";
+
 class ModbusInterfaceConfig
 {
 public:
@@ -85,11 +90,54 @@ public:
     modbus_uint_8_to_float_(nullptr),
     read_function_(read_function)
   {
-    if (this->read_function() == "register" || this->read_function() == "input_register")
+    if (this->read_function() == REGISTER || this->read_function() == INPUT_REGISTER)
     {
       this->register_mode(true);
+    } else if (this->read_function() == BITS || this->read_function() == INPUT_BITS)
+    {
+      this->register_mode(false);
+    } else {
+      throw ModbusInvalidConfigException(
+        "ModbusInterfaceReadConfig: Invalid read_function passed [" + read_function_ +
+          "]. Allowed types are [" + std::string(REGISTER) + "], [" + std::string(INPUT_REGISTER) + "], [" + std::string(BITS) + "] or [" + std::string(INPUT_BITS) + "].");
     }
     select_modbus_to_double_function(data_type);
+  }
+
+  explicit ModbusInterfaceReadConfig(
+    const int & register_address, const int & number_of_bits, const std::string & read_function,
+    float (*custom_modbus_uint_16_to_float)(const uint16_t *), const double & offset = 0.0, const double & factor = 1.0)
+  : ModbusInterfaceConfig(register_address, number_of_bits, offset, factor),
+    modbus_uint_16_to_float_(custom_modbus_uint_16_to_float),
+    modbus_uint_8_to_float_(nullptr),
+    read_function_(read_function)
+  {
+    // check that mode fits to given readfunction signature
+    if (this->read_function() != REGISTER && this->read_function() == INPUT_REGISTER)
+    {
+      throw ModbusInvalidConfigException(
+        "ModbusInterfaceReadConfig: Custom function passed to ModbusReadConfig with signature for reading register but read_function set to: [" + read_function_ +
+          "] were [" + std::string(REGISTER) + "] or [" + std::string(INPUT_REGISTER) + "] is expected.");
+    }
+    this->register_mode(true);
+  }
+
+  explicit ModbusInterfaceReadConfig(
+    const int & register_address, const int & number_of_bits, const std::string & read_function,
+    float (*custom_modbus_uint_8_to_float)(const uint8_t *), const double & offset = 0.0, const double & factor = 1.0)
+  : ModbusInterfaceConfig(register_address, number_of_bits, offset, factor),
+    modbus_uint_16_to_float_(nullptr),
+    modbus_uint_8_to_float_(custom_modbus_uint_8_to_float),
+    read_function_(read_function)
+  {
+    // check that read functions type (mode) fits to given readfunction signature
+    if (this->read_function() != BITS && this->read_function() != INPUT_BITS)
+    {
+      throw ModbusInvalidConfigException(
+        "ModbusInterfaceReadConfig: Custom function passed to ModbusReadConfig with signature for reading input bits but read_function set to: [" + read_function_ +
+          "] were [" + std::string(BITS) + "] or [" + std::string(INPUT_BITS) + "] is expected.");
+    }
+    this->register_mode(false);
   }
 
   template <typename T>
@@ -168,7 +216,7 @@ protected:
       }
       else
       {
-        throw std::runtime_error(
+        throw ModbusUnknownConversionFunctionException(
           "ModbusInterfaceReadConfig: Unknown modbus_uint_16_to_float_ function [" + data_type +
           "] passed.");
       }
@@ -182,7 +230,7 @@ protected:
       }
       else
       {
-        throw std::runtime_error(
+        throw ModbusUnknownConversionFunctionException(
           "ModbusInterfaceReadConfig: Unknown modbus_uint_8_to_float function [" + data_type +
           "] passed.");
       }
@@ -206,11 +254,56 @@ public:
     write_function_(write_function),
     write_this_interface_(write_this_interface)
   {
-    if (this->write_function() == "register" || this->write_function() == "input_register")
+    if (this->write_function() == REGISTER || this->write_function() == INPUT_REGISTER)
     {
       this->register_mode(true);
+    } else if (this->write_function() == BITS || this->write_function() == INPUT_BITS)
+    {
+      this->register_mode(false);
+    } else {
+      throw ModbusInvalidConfigException(
+        "ModbusInterfaceWriteConfig: Invalid write_function passed [" + write_function_ +
+          "]. Allowed types are [" + std::string(REGISTER) + "], [" + std::string(INPUT_REGISTER) + "], [" + std::string(BITS) + "] or [" + std::string(INPUT_BITS) + "].");
     }
     select_double_to_modbus_function(data_type);
+  }
+
+  explicit ModbusInterfaceWriteConfig(
+    const int & register_address, const int & number_of_number_of_bits,
+    const std::string & write_function, std::vector<uint16_t> (*custom_modbus_float_to_uint_16)(const float &), const double & offset = 0.0,
+    const double & factor = 1.0, const bool & write_this_interface = false)
+  : ModbusInterfaceConfig(register_address, number_of_number_of_bits, offset, factor),
+    modbus_float_to_uint_16_(custom_modbus_float_to_uint_16),
+    modbus_float_to_uint_8_(nullptr),
+    write_function_(write_function),
+    write_this_interface_(write_this_interface)
+  {
+    if (this->write_function() != REGISTER && this->write_function() != INPUT_REGISTER)
+    {
+          throw ModbusInvalidConfigException(
+        "ModbusInterfaceWriteConfig: Custom function passed to ModbusInterfaceWriteConfig with signature for writing register but write_function_ set to: [" + write_function_ +
+          "] were [" + std::string(REGISTER) + "] or [" + std::string(INPUT_REGISTER) + "] is expected.");
+    }
+    this->register_mode(true);
+  }
+
+  explicit ModbusInterfaceWriteConfig(
+    const int & register_address, const int & number_of_number_of_bits,
+    const std::string & write_function, std::vector<uint8_t> (*custom_modbus_float_to_uint_8)(const float &), const double & offset = 0.0,
+    const double & factor = 1.0, const bool & write_this_interface = false)
+  : ModbusInterfaceConfig(register_address, number_of_number_of_bits, offset, factor),
+    modbus_float_to_uint_16_(nullptr),
+    modbus_float_to_uint_8_(custom_modbus_float_to_uint_8),
+    write_function_(write_function),
+    write_this_interface_(write_this_interface)
+  {
+    if (this->write_function() != BITS && this->write_function() != INPUT_BITS)
+    {
+                throw ModbusInvalidConfigException(
+        "ModbusInterfaceWriteConfig: Custom function passed to ModbusInterfaceWriteConfig with signature for writing bits but write_function_ set to: [" + write_function_ +
+          "] were were [" + std::string(BITS) + "] or [" + std::string(INPUT_BITS) + "] is expected.");
+    }
+    this->register_mode(false);
   }
 
   std::vector<uint16_t> double_to_modbus_16(const double & value)
@@ -309,7 +402,7 @@ protected:
       }
       else
       {
-        throw std::runtime_error(
+        throw ModbusUnknownConversionFunctionException(
           "ModbusInterfaceWriteConfig: Unknown modbus_uint_16_to_float function [" + data_type +
           "] passed.");
       }
@@ -328,7 +421,7 @@ protected:
       }
       else
       {
-        throw std::runtime_error(
+        throw ModbusUnknownConversionFunctionException(
           "ModbusInterfaceWriteConfig: Unknown modbus_8_to_float function [" + data_type +
           "] passed.");
       }
@@ -417,11 +510,11 @@ public:
   std::vector<uint16_t> read_raw_register(ModbusInterfaceReadConfig & config)
   {
     const std::string read_fn = config.read_function();
-    if (read_fn == "register")
+    if (read_fn == REGISTER)
     {
       return read_register(config.get_register_address(), config.number_of_registers());
     }
-    else if (read_fn == "input_register")
+    else if (read_fn == INPUT_REGISTER)
     {
       return read_input_register(config.get_register_address(), config.number_of_registers());
     }
@@ -436,22 +529,22 @@ public:
   double read(ModbusInterfaceReadConfig & config)
   {
     const std::string read_fn = config.read_function();
-    if (read_fn == "register")
+    if (read_fn == REGISTER)
     {
       return config.convert_from_modbus(
         read_register(config.get_register_address(), config.number_of_registers()));
     }
-    else if (read_fn == "input_register")
+    else if (read_fn == INPUT_REGISTER)
     {
       return config.convert_from_modbus(
         read_input_register(config.get_register_address(), config.number_of_registers()));
     }
-    else if (read_fn == "bits")
+    else if (read_fn == BITS)
     {
       return config.convert_from_modbus(
         read_bits(config.get_register_address(), config.number_of_bits()));
     }
-    else if (read_fn == "input_bits")
+    else if (read_fn == INPUT_BITS)
     {
       return config.convert_from_modbus(
         read_input_bits(config.get_register_address(), config.number_of_bits()));
@@ -469,11 +562,11 @@ public:
   void write(ModbusInterfaceWriteConfig config, const double & value)
   {
     const std::string write_fn = config.write_function();
-    if (write_fn == "register")
+    if (write_fn == REGISTER)
     {
       write_register(config.get_register_address(), config.double_to_modbus_16(value));
     }
-    else if (write_fn == "bits")
+    else if (write_fn == BITS)
     {
       write_bits(config.get_register_address(), config.double_to_modbus_8(value));
     }
