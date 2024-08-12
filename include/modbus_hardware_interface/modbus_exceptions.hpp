@@ -48,7 +48,9 @@ public:
 class ModbusInvalidConfigException : public std::runtime_error
 {
 public:
-  explicit ModbusInvalidConfigException(const std::string & message) : std::runtime_error(message) {}
+  explicit ModbusInvalidConfigException(const std::string & message) : std::runtime_error(message)
+  {
+  }
 
   virtual ~ModbusInvalidConfigException() noexcept {}
 };
@@ -56,7 +58,10 @@ public:
 class ModbusUnknownConversionFunctionException : public std::runtime_error
 {
 public:
-  explicit ModbusUnknownConversionFunctionException(const std::string & message) : std::runtime_error(message) {}
+  explicit ModbusUnknownConversionFunctionException(const std::string & message)
+  : std::runtime_error(message)
+  {
+  }
 
   virtual ~ModbusUnknownConversionFunctionException() noexcept {}
 };
