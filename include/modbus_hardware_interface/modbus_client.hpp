@@ -84,7 +84,7 @@ class ModbusInterfaceReadConfig : public ModbusInterfaceConfig
 public:
   explicit ModbusInterfaceReadConfig(
     const int & register_address, const int & number_of_bits, const std::string & read_function,
-    const std::string & data_type, const double & offset = 0.0, const double & factor = 1.0)
+    const std::string & conversion_fn, const double & offset = 0.0, const double & factor = 1.0)
   : ModbusInterfaceConfig(register_address, number_of_bits, offset, factor),
     modbus_uint_16_to_float_(nullptr),
     modbus_uint_8_to_float_(nullptr),
@@ -93,13 +93,6 @@ public:
     if (this->read_function() == REGISTER || this->read_function() == INPUT_REGISTER)
     {
       this->register_mode(true);
-    } else if (this->read_function() == BITS || this->read_function() == INPUT_BITS)
-    {
-      this->register_mode(false);
-    } else {
-      throw ModbusInvalidConfigException(
-        "ModbusInterfaceReadConfig: Invalid read_function passed [" + read_function_ +
-          "]. Allowed types are [" + std::string(REGISTER) + "], [" + std::string(INPUT_REGISTER) + "], [" + std::string(BITS) + "] or [" + std::string(INPUT_BITS) + "].");
     }
     else if (this->read_function() == BITS || this->read_function() == INPUT_BITS)
     {
@@ -112,7 +105,18 @@ public:
         "]. Allowed types are [" + std::string(REGISTER) + "], [" + std::string(INPUT_REGISTER) +
         "], [" + std::string(BITS) + "] or [" + std::string(INPUT_BITS) + "].");
     }
-    select_modbus_to_double_function(data_type);
+    else if (this->read_function() == BITS || this->read_function() == INPUT_BITS)
+    {
+      this->register_mode(false);
+    }
+    else
+    {
+      throw ModbusInvalidConfigException(
+        "ModbusInterfaceReadConfig: Invalid read_function passed [" + read_function_ +
+        "]. Allowed types are [" + std::string(REGISTER) + "], [" + std::string(INPUT_REGISTER) +
+        "], [" + std::string(BITS) + "] or [" + std::string(INPUT_BITS) + "].");
+    }
+    select_modbus_to_double_function(conversion_fn);
   }
 
   explicit ModbusInterfaceReadConfig(
@@ -178,31 +182,31 @@ protected:
     return modbus_uint_8_to_float_(values.data());
   }
 
-  void select_modbus_to_double_function(const std::string & data_type)
+  void select_modbus_to_double_function(const std::string & conversion_fn)
   {
     if (register_mode())
     {
-      if (data_type == "float_abcd")
+      if (conversion_fn == "float_abcd")
       {
         modbus_uint_16_to_float_ = modbus_get_float_abcd;
       }
-      else if (data_type == "float_badc")
+      else if (conversion_fn == "float_badc")
       {
         modbus_uint_16_to_float_ = modbus_get_float_badc;
       }
-      else if (data_type == "float_cdab")
+      else if (conversion_fn == "float_cdab")
       {
         modbus_uint_16_to_float_ = modbus_get_float_cdab;
       }
-      else if (data_type == "float_dcba")
+      else if (conversion_fn == "float_dcba")
       {
         modbus_uint_16_to_float_ = modbus_get_float_dcba;
       }
-      else if (data_type == "raw")
+      else if (conversion_fn == "raw")
       {
         modbus_uint_16_to_float_ = nullptr;
       }
-      else if (data_type == "to_int_to_float")
+      else if (conversion_fn == "to_int_to_float")
       {
         modbus_uint_16_to_float_ = [](const uint16_t * values) -> float
         {
@@ -216,7 +220,7 @@ protected:
           return static_cast<float>(result);
         };
       }
-      else if (data_type == "to_int_to_float_inv")
+      else if (conversion_fn == "to_int_to_float_inv")
       {
         modbus_uint_16_to_float_ = [](const uint16_t * values) -> float
         {
@@ -234,13 +238,13 @@ protected:
       else
       {
         throw ModbusUnknownConversionFunctionException(
-          "ModbusInterfaceReadConfig: Unknown modbus_uint_16_to_float_ function [" + data_type +
+          "ModbusInterfaceReadConfig: Unknown modbus_uint_16_to_float_ function [" + conversion_fn +
           "] passed.");
       }
     }
     else
     {
-      if (data_type == "float")
+      if (conversion_fn == "float")
       {
         modbus_uint_8_to_float_ = [](const uint8_t * value) -> float
         { return static_cast<float>(*value); };
@@ -248,7 +252,7 @@ protected:
       else
       {
         throw ModbusUnknownConversionFunctionException(
-          "ModbusInterfaceReadConfig: Unknown modbus_uint_8_to_float function [" + data_type +
+          "ModbusInterfaceReadConfig: Unknown modbus_uint_8_to_float function [" + conversion_fn +
           "] passed.");
       }
     }
@@ -263,8 +267,9 @@ class ModbusInterfaceWriteConfig : public ModbusInterfaceConfig
 public:
   explicit ModbusInterfaceWriteConfig(
     const int & register_address, const int & number_of_number_of_bits,
-    const std::string & write_function, const std::string & data_type, const double & offset = 0.0,
-    const double & factor = 1.0, const bool & write_this_interface = false)
+    const std::string & write_function, const std::string & conversion_fn,
+    const double & offset = 0.0, const double & factor = 1.0,
+    const bool & write_this_interface = false)
   : ModbusInterfaceConfig(register_address, number_of_number_of_bits, offset, factor),
     modbus_float_to_uint_16_(nullptr),
     modbus_float_to_uint_8_(nullptr),
@@ -274,13 +279,6 @@ public:
     if (this->write_function() == REGISTER || this->write_function() == INPUT_REGISTER)
     {
       this->register_mode(true);
-    } else if (this->write_function() == BITS || this->write_function() == INPUT_BITS)
-    {
-      this->register_mode(false);
-    } else {
-      throw ModbusInvalidConfigException(
-        "ModbusInterfaceWriteConfig: Invalid write_function passed [" + write_function_ +
-          "]. Allowed types are [" + std::string(REGISTER) + "], [" + std::string(INPUT_REGISTER) + "], [" + std::string(BITS) + "] or [" + std::string(INPUT_BITS) + "].");
     }
     else if (this->write_function() == BITS || this->write_function() == INPUT_BITS)
     {
@@ -293,7 +291,18 @@ public:
         "]. Allowed types are [" + std::string(REGISTER) + "], [" + std::string(INPUT_REGISTER) +
         "], [" + std::string(BITS) + "] or [" + std::string(INPUT_BITS) + "].");
     }
-    select_double_to_modbus_function(data_type);
+    else if (this->write_function() == BITS || this->write_function() == INPUT_BITS)
+    {
+      this->register_mode(false);
+    }
+    else
+    {
+      throw ModbusInvalidConfigException(
+        "ModbusInterfaceWriteConfig: Invalid write_function passed [" + write_function_ +
+        "]. Allowed types are [" + std::string(REGISTER) + "], [" + std::string(INPUT_REGISTER) +
+        "], [" + std::string(BITS) + "] or [" + std::string(INPUT_BITS) + "].");
+    }
+    select_double_to_modbus_function(conversion_fn);
   }
 
   explicit ModbusInterfaceWriteConfig(
@@ -366,11 +375,11 @@ public:
 protected:
   double convert(const double & value) { return value * factor_ + offset_; }
 
-  void select_double_to_modbus_function(const std::string & data_type)
+  void select_double_to_modbus_function(const std::string & conversion_fn)
   {
     if (register_mode())
     {
-      if (data_type == "float_abcd")
+      if (conversion_fn == "float_abcd")
       {
         modbus_float_to_uint_16_ = [](const float & value) -> std::vector<uint16_t>
         {
@@ -379,7 +388,7 @@ protected:
           return data;
         };
       }
-      else if (data_type == "float_badc")
+      else if (conversion_fn == "float_badc")
       {
         modbus_float_to_uint_16_ = [](const float & value) -> std::vector<uint16_t>
         {
@@ -388,7 +397,7 @@ protected:
           return data;
         };
       }
-      else if (data_type == "float_cdab")
+      else if (conversion_fn == "float_cdab")
       {
         modbus_float_to_uint_16_ = [](const float & value) -> std::vector<uint16_t>
         {
@@ -397,11 +406,11 @@ protected:
           return data;
         };
       }
-      else if (data_type == "raw")
+      else if (conversion_fn == "raw")
       {
         modbus_float_to_uint_16_ = nullptr;
       }
-      else if (data_type == "float_dcba")
+      else if (conversion_fn == "float_dcba")
       {
         modbus_float_to_uint_16_ = [](const float & value) -> std::vector<uint16_t>
         {
@@ -410,7 +419,7 @@ protected:
           return data;
         };
       }
-      else if (data_type == "to_int_to_modbus")
+      else if (conversion_fn == "to_int_to_modbus")
       {
         modbus_float_to_uint_16_ = [](const float & value) -> std::vector<uint16_t>
         {
@@ -423,7 +432,7 @@ protected:
           return data;
         };
       }
-      else if (data_type == "to_int_to_modbus_inv")
+      else if (conversion_fn == "to_int_to_modbus_inv")
       {
         modbus_float_to_uint_16_ = [](const float & value) -> std::vector<uint16_t>
         {
@@ -439,13 +448,13 @@ protected:
       else
       {
         throw ModbusUnknownConversionFunctionException(
-          "ModbusInterfaceWriteConfig: Unknown modbus_uint_16_to_float function [" + data_type +
+          "ModbusInterfaceWriteConfig: Unknown modbus_uint_16_to_float function [" + conversion_fn +
           "] passed.");
       }
     }
     else
     {
-      if (data_type == "float")
+      if (conversion_fn == "float")
       {
         modbus_float_to_uint_8_ = [](const float & value) -> std::vector<uint8_t>
         {
@@ -458,7 +467,7 @@ protected:
       else
       {
         throw ModbusUnknownConversionFunctionException(
-          "ModbusInterfaceWriteConfig: Unknown modbus_8_to_float function [" + data_type +
+          "ModbusInterfaceWriteConfig: Unknown modbus_8_to_float function [" + conversion_fn +
           "] passed.");
       }
     }

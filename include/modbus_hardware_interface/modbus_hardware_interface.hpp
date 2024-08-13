@@ -36,7 +36,7 @@ namespace modbus_hardware_interface
 // Default values for modbus
 static const bool USE_PERSISTENT_CONNECTION_DEFAULT = true;
 static const int NUMBER_OF_BITS_TO_READ_DEFAULT = 32;
-static const char DATA_TYPE_DEFAULT[] = "float_dcba";
+static const char CONVERSION_FN_DEFAULT[] = "float_dcba";
 static const char READ_FUNCTION_DEFAULT[] = "register";
 static const char WRITE_FUNCTION_DEFAULT[] = "register";
 static const double NO_CMD = std::numeric_limits<double>::quiet_NaN();

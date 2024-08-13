@@ -39,26 +39,26 @@ protected:
             <command_interface name="position">
               <param name="register">1</param>
               <param name="bits_to_read">32</param>
-              <param name="data_type">float_abcd</param>
+              <param name="conversion_fn">float_abcd</param>
               <param name="write_function">register</param>
             </command_interface>
             <command_interface name="velocity">
               <param name="register">2</param>
               <param name="bits_to_read">1</param>
-              <param name="data_type">float</param>
+              <param name="conversion_fn">float</param>
               <param name="write_function">bits</param>
             </command_interface>
 
             <state_interface name="position">
               <param name="register">2</param>
               <param name="bits_to_read">1</param>
-              <param name="data_type">float</param>
+              <param name="conversion_fn">float</param>
               <param name="read_function">input_bits</param>
             </state_interface>
             <state_interface name="velocity">
               <param name="register">32</param>
               <param name="bits_to_read">32</param>
-              <param name="data_type">float_abcd</param>
+              <param name="conversion_fn">float_abcd</param>
               <param name="read_function">input_register</param>
             </state_interface>
           </joint>
