@@ -350,7 +350,7 @@ T ModbusHardwareInterface::create_config(
     RCLCPP_ERROR_STREAM(
       rclcpp::get_logger("ModbusHardwareInterface"),
       "Could not convert register number  [" << reg_str << "] to int.");
-    throw;
+    throw e;
   }
 
   int bits_to_read = NUMBER_OF_BITS_TO_READ_DEFAULT;
@@ -373,7 +373,7 @@ T ModbusHardwareInterface::create_config(
       RCLCPP_ERROR_STREAM(
         rclcpp::get_logger("ModbusHardwareInterface"),
         "Could not convert given bits to read string:[" << bits_to_read_str << "] to an int.");
-      throw;
+      throw e;
     }
   }
 
