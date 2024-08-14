@@ -354,15 +354,15 @@ T ModbusHardwareInterface::create_config(
     bits_to_read = std::stoi(bits_to_read_str);
   }
 
-  // data_type, set to default if not provided
-  std::string data_type = interface.parameters["data_type"];
-  if (data_type.empty())
+  // conversion_fn, set to default if not provided
+  std::string conversion_fn = interface.parameters["conversion_fn"];
+  if (conversion_fn.empty())
   {
     RCLCPP_WARN_STREAM(
       rclcpp::get_logger("ModbusHardwareInterface"),
-      "data_type is empty for interface[" + interface.name + "]. Use '" << DATA_TYPE_DEFAULT
-                                                                        << "' as default.");
-    data_type = DATA_TYPE_DEFAULT;
+      "conversion_fn is empty for interface[" + interface.name + "]. Use '" << CONVERSION_FN_DEFAULT
+                                                                            << "' as default.");
+    conversion_fn = CONVERSION_FN_DEFAULT;
   }
 
   std::string offset_str = interface.parameters["offset"];
@@ -379,7 +379,7 @@ T ModbusHardwareInterface::create_config(
     factor = std::stod(factor_str);
   }
 
-  return T(reg, bits_to_read, access_function, data_type, offset, factor);
+  return T(reg, bits_to_read, access_function, conversion_fn, offset, factor);
 }
 
 bool ModbusHardwareInterface::connection_established() const
