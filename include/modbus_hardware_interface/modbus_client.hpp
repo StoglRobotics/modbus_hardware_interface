@@ -93,20 +93,6 @@ public:
     if (this->read_function() == REGISTER || this->read_function() == INPUT_REGISTER)
     {
       this->register_mode(true);
-<<<<<<< HEAD
-=======
-    }
-    else if (this->read_function() == BITS || this->read_function() == INPUT_BITS)
-    {
-      this->register_mode(false);
-    }
-    else
-    {
-      throw ModbusInvalidConfigException(
-        "ModbusInterfaceReadConfig: Invalid read_function passed [" + read_function_ +
-        "]. Allowed types are [" + std::string(REGISTER) + "], [" + std::string(INPUT_REGISTER) +
-        "], [" + std::string(BITS) + "] or [" + std::string(INPUT_BITS) + "].");
->>>>>>> 45fa586 (Add checking for register number and formating)
     }
     else if (this->read_function() == BITS || this->read_function() == INPUT_BITS)
     {
@@ -119,17 +105,7 @@ public:
         "]. Allowed types are [" + std::string(REGISTER) + "], [" + std::string(INPUT_REGISTER) +
         "], [" + std::string(BITS) + "] or [" + std::string(INPUT_BITS) + "].");
     }
-    else if (this->read_function() == BITS || this->read_function() == INPUT_BITS)
-    {
-      this->register_mode(false);
-    }
-    else
-    {
-      throw ModbusInvalidConfigException(
-        "ModbusInterfaceReadConfig: Invalid read_function passed [" + read_function_ +
-        "]. Allowed types are [" + std::string(REGISTER) + "], [" + std::string(INPUT_REGISTER) +
-        "], [" + std::string(BITS) + "] or [" + std::string(INPUT_BITS) + "].");
-    }
+
     select_modbus_to_double_function(conversion_fn);
   }
 
@@ -306,31 +282,6 @@ public:
     if (this->write_function() == REGISTER || this->write_function() == INPUT_REGISTER)
     {
       this->register_mode(true);
-<<<<<<< HEAD
-=======
-    }
-    else if (this->write_function() == BITS || this->write_function() == INPUT_BITS)
-    {
-      this->register_mode(false);
-    }
-    else
-    {
-      throw ModbusInvalidConfigException(
-        "ModbusInterfaceWriteConfig: Invalid write_function passed [" + write_function_ +
-        "]. Allowed types are [" + std::string(REGISTER) + "], [" + std::string(INPUT_REGISTER) +
-        "], [" + std::string(BITS) + "] or [" + std::string(INPUT_BITS) + "].");
->>>>>>> 45fa586 (Add checking for register number and formating)
-    }
-    else if (this->write_function() == BITS || this->write_function() == INPUT_BITS)
-    {
-      this->register_mode(false);
-    }
-    else
-    {
-      throw ModbusInvalidConfigException(
-        "ModbusInterfaceWriteConfig: Invalid write_function passed [" + write_function_ +
-        "]. Allowed types are [" + std::string(REGISTER) + "], [" + std::string(INPUT_REGISTER) +
-        "], [" + std::string(BITS) + "] or [" + std::string(INPUT_BITS) + "].");
     }
     else if (this->write_function() == BITS || this->write_function() == INPUT_BITS)
     {
