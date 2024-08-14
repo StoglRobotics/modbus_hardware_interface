@@ -105,17 +105,7 @@ public:
         "]. Allowed types are [" + std::string(REGISTER) + "], [" + std::string(INPUT_REGISTER) +
         "], [" + std::string(BITS) + "] or [" + std::string(INPUT_BITS) + "].");
     }
-    else if (this->read_function() == BITS || this->read_function() == INPUT_BITS)
-    {
-      this->register_mode(false);
-    }
-    else
-    {
-      throw ModbusInvalidConfigException(
-        "ModbusInterfaceReadConfig: Invalid read_function passed [" + read_function_ +
-        "]. Allowed types are [" + std::string(REGISTER) + "], [" + std::string(INPUT_REGISTER) +
-        "], [" + std::string(BITS) + "] or [" + std::string(INPUT_BITS) + "].");
-    }
+
     select_modbus_to_double_function(conversion_fn);
   }
 
@@ -220,6 +210,19 @@ protected:
           return static_cast<float>(result);
         };
       }
+      else if (conversion_fn == "to_int_to_float_16")
+      {
+        modbus_uint_16_to_float_ = [](const uint16_t * values) -> float
+        {
+          // Dereference the pointer to access the uint16_t values
+          uint16_t firstValue = *(values);
+          // Shift secondValue by 16 bits to occupy the higher 16 bits of the int32_t
+          int32_t result = 0x0;
+          // Bitwise OR with firstValue to set the lower 16 bits
+          result |= static_cast<int32_t>(firstValue);
+          return static_cast<float>(result);
+        };
+      }
       else if (conversion_fn == "to_int_to_float_inv")
       {
         modbus_uint_16_to_float_ = [](const uint16_t * values) -> float
@@ -279,17 +282,6 @@ public:
     if (this->write_function() == REGISTER || this->write_function() == INPUT_REGISTER)
     {
       this->register_mode(true);
-    }
-    else if (this->write_function() == BITS || this->write_function() == INPUT_BITS)
-    {
-      this->register_mode(false);
-    }
-    else
-    {
-      throw ModbusInvalidConfigException(
-        "ModbusInterfaceWriteConfig: Invalid write_function passed [" + write_function_ +
-        "]. Allowed types are [" + std::string(REGISTER) + "], [" + std::string(INPUT_REGISTER) +
-        "], [" + std::string(BITS) + "] or [" + std::string(INPUT_BITS) + "].");
     }
     else if (this->write_function() == BITS || this->write_function() == INPUT_BITS)
     {
