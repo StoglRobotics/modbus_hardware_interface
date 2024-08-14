@@ -339,7 +339,20 @@ T ModbusHardwareInterface::create_config(
   hardware_interface::InterfaceInfo & interface, const std::string & access_function)
 {
   // get register
-  int reg = std::stoi(interface.parameters["register"]);
+  int reg;
+  try
+  {
+    reg = std::stoi(interface.parameters["register"]);
+  }
+  catch (const std::invalid_argument & e)
+  {
+    const auto reg_str = interface.parameters["register"];
+    RCLCPP_ERROR_STREAM(
+      rclcpp::get_logger("ModbusHardwareInterface"),
+      "Could not convert register number  [" << reg_str << "] to int.");
+    throw;
+  }
+
   int bits_to_read = NUMBER_OF_BITS_TO_READ_DEFAULT;
   std::string bits_to_read_str = interface.parameters["bits_to_read"];
   if (bits_to_read_str.empty())
@@ -351,7 +364,17 @@ T ModbusHardwareInterface::create_config(
   }
   else
   {
-    bits_to_read = std::stoi(bits_to_read_str);
+    try
+    {
+      bits_to_read = std::stoi(bits_to_read_str);
+    }
+    catch (const std::invalid_argument & e)
+    {
+      RCLCPP_ERROR_STREAM(
+        rclcpp::get_logger("ModbusHardwareInterface"),
+        "Could not convert given bits to read string:[" << bits_to_read_str << "] to an int.");
+      throw;
+    }
   }
 
   // conversion_fn, set to default if not provided
