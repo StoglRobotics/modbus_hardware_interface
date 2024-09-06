@@ -1,6 +1,3 @@
-**This package needs at the moment this [ros2_control PR #1421](https://github.com/ros-controls/ros2_control/pull/1421) to work. Changes should be merged soon.**
-
-
 # ModbusHardwareInterface
 If you not familiar with `ros2_control.xacro` check the [section at the end](#mini-urdf-and-xacro-introduction).
 ## Using ModbusHardwareInterface in ros2_control.xacro
