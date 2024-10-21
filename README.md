@@ -1,3 +1,4 @@
+Video explanation of its implemntation and how to use can be found [here](https://youtu.be/iEiZje8imeU?si=3jsBkv6SsXmHkQpW).
 # ModbusHardwareInterface
 If you not familiar with `ros2_control.xacro` check the [section at the end](#mini-urdf-and-xacro-introduction).
 ## Using ModbusHardwareInterface in ros2_control.xacro
